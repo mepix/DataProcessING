@@ -1,0 +1,55 @@
+
+#############################
+TASK 1 - Take the list of precursors and make them fasta format and number
+This creates a .seq file, where the format is 
+	>seq X 
+	SEQUENCE
+	/n
+
+awk 'BEGIN { cntr = 0 } /^/ { cntr++ ; print ">seq_"cntr } { print $0 }' Rodeo.txt>HELL_FINAL.seq
+
+################################
+#TASK 2 - Not part of the code, just do it. 
+
+Run the fasta formatted list of precursors with CD-HIT. It will sort them into clusters by sequence similarity. I found that 40% is a good cut off, but you can try others.
+http://weizhong-lab.ucsd.edu/cdhit_suite/cgi-bin/index.cgi?cmd=cd-hit
+
+Download the file that shorts cluster by size. 
+The biggest cluster of precursors  will be first listed as >Cluster 0 
+Take that one and save as a new file ie HELL.sorted0
+You can repeat this process for each cluster that looks interesting
+
+You get a file with - 
+
+>Cluster 0
+0	34aa, >seq_1... at 58.82%
+1	42aa, >seq_4... at 61.90%
+2	42aa, >seq_5... at 69.05%
+which sort of looks like that...and it continues 
+
+########################################################
+TASK 3 - Take output of CD-Hit and convert to list of sequence names
+
+So this part will just extract out the '>seq_1....a' part out of the .sorted file
+look it will looking for and print and output -o the period matches any single character
+
+>seq_1... a
+>seq_4... a
+and so out 
+
+grep -o -P '(?<=>).*?(?=....a)' HELL.sorted0 > HELL.sorted0.seq // works on linux, not on mac
+grep -Eo '(?<=>).*?(?=....a)' test.sorted0 > testsorted0.seq // doesn't work on mac
+egrep -o '>.+?\....a' test.sorted0 > testsorted0.seq //  solves the issue on a mac
+
+#####################################
+TAST 4 - Take list of '>seq_1... a' (this format, from step 3) and search for '>seq_1' 
+(this format, from step 1), but to print all the SEQUENCES (from step 1) 
+
+grep -A1 -wFf HELL.sorted0.seq HELL_FINAL.seq > HELL_Precursors.seq
+
+
+Expected format 
+>seq_1
+SEQUENCE 
+/n
+
